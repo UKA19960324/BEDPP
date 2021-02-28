@@ -2,13 +2,13 @@ pragma solidity >=0.4.22 <0.8.0;
 
 contract BEDMoB {
     
-    struct IoTDataProduct{
+    struct ContentProduct{
         uint id;
         string description;
         uint[] price;
         uint[] boundedError;
         mapping(address=>bool) accessList;
-        mapping(address=>string) IoTDataProductHash;
+        mapping(address=>string) ContentProductHash;
         address payable owner;
     }
     
@@ -17,43 +17,42 @@ contract BEDMoB {
     }
     
     address public contractCreator;
-    uint public IoTDataProductCount = 0;
-    mapping(uint => IoTDataProduct) private IoTDataProducts;
+    uint public ContentProductCount = 0;
+    mapping(uint => ContentProduct) private ContentProducts;
     mapping(address => Customer) private CustomerMap;
     
      constructor () public {
         contractCreator = msg.sender;
     }
     
-    event IoTDataProductCreated(uint id, string  description, uint[] price, uint[] boundedError ,address owner);
-    event CustomerRegisterEvent(address Customer , string message);
-    event IoTDataProductPurchased(uint id, string description, uint price , uint boundedError , address payable owner, address Customer,string CustomerPubliceKey);
-    event IoTDataProductSend(uint id,address owner,address Customer);
-    event IoTDataProductQuery(string fileHash);
+    event ContentProductCreated(uint id, string  description, uint[] price, uint[] boundedError ,address owner);
+    event CustomerRegisterProductEvent(address Customer , string message);
+    event ContentProductPurchased(uint id, string description, uint price , uint boundedError , address payable owner, address Customer,string CustomerPubliceKey);
+    event ContentProductSend(uint id,address owner,address Customer);
+    event ContentProductQuery(string fileHash);
     
-    function createIoTDataProduct(string  memory _description, uint[] memory _price, uint[] memory _boundedError) public{
-        // Increment IoTDataProduct count
-        IoTDataProductCount++;
-        // Create the IoTDataProduct
-        IoTDataProducts[IoTDataProductCount].id = IoTDataProductCount;
-        IoTDataProducts[IoTDataProductCount].description = _description;
-        IoTDataProducts[IoTDataProductCount].price = _price;
-        IoTDataProducts[IoTDataProductCount].boundedError = _boundedError;
-    
-        IoTDataProducts[IoTDataProductCount].owner = msg.sender;
-        emit IoTDataProductCreated(IoTDataProductCount,_description,_price,_boundedError,msg.sender);
+    function dataOwnerCreateContentProduct(string  memory _description, uint[] memory _price, uint[] memory _boundedError) public{
+        // Increment ContentProduct Count
+        ContentProductCount++;
+        // Create the ContentProduct
+        ContentProducts[ContentProductCount].id = ContentProductCount;
+        ContentProducts[ContentProductCount].description = _description;
+        ContentProducts[ContentProductCount].price = _price;
+        ContentProducts[ContentProductCount].boundedError = _boundedError;
+        ContentProducts[ContentProductCount].owner = msg.sender;
+        emit ContentProductCreated(ContentProductCount,_description,_price,_boundedError,msg.sender);
     }
     
-    function CustomerRegister (string memory _publicKey) public returns (address) {
+    function customerRegisterProduct (string memory _publicKey) public returns (address) {
         // check if customer is already registered
         require(bytes(CustomerMap[msg.sender].publicKey).length == 0,"Customer Already Registered");
         CustomerMap[msg.sender].publicKey = _publicKey;
-        emit CustomerRegisterEvent(msg.sender,"Sucessfully Registered");
+        emit CustomerRegisterProductEvent(msg.sender,"Sucessfully Registered");
         return msg.sender;
     }
     
-    function purchaseIoTDataProduct(uint _id) public payable{
-        IoTDataProduct storage _product = IoTDataProducts[_id];
+    function purchaseContentProduct(uint _id) public payable{
+        ContentProduct storage _product = ContentProducts[_id];
         uint _boundedError;
         for (uint it =0 ; it < _product.price.length; it++ ){
             if (_product.price[it] == msg.value ){
@@ -64,30 +63,30 @@ contract BEDMoB {
         if (_product.accessList[msg.sender] == true){
             address payable _owner = _product.owner;
             payable(_owner).transfer(msg.value);
-            emit IoTDataProductPurchased(_id,_product.description,msg.value,_boundedError,_owner,msg.sender,CustomerMap[msg.sender].publicKey);
+            emit ContentProductPurchased(_id,_product.description,msg.value,_boundedError,_owner,msg.sender,CustomerMap[msg.sender].publicKey);
         }
         else{
             revert();
         }
     }
 
-    function sendIoTdataProduct(uint _id, string memory _fileHash, address _Customer) public {
-        IoTDataProducts[_id].IoTDataProductHash[_Customer] = _fileHash;
-        emit IoTDataProductSend(_id,msg.sender,_Customer);
+    function sendContentProduct(uint _id, string memory _fileHash, address _Customer) public {
+        ContentProducts[_id].ContentProductHash[_Customer] = _fileHash;
+        emit ContentProductSend(_id,msg.sender,_Customer);
     }
     
-    function queryIoTdataProduct(uint _id) public {
-        IoTDataProduct storage _product = IoTDataProducts[_id];
+    function queryContentProduct(uint _id) public {
+        ContentProduct storage _product = ContentProducts[_id];
         if (_product.accessList[msg.sender] == true) {
-            emit IoTDataProductQuery(_product.IoTDataProductHash[msg.sender]);
+            emit ContentProductQuery(_product.ContentProductHash[msg.sender]);
         }
         else{
             revert();
         }
     }
     
-    function getIoTDataProductInfo(uint _id) public view returns (uint id, string memory, uint[] memory , uint[] memory, address){
-        return (IoTDataProducts[_id].id,IoTDataProducts[_id].description,IoTDataProducts[_id].price,IoTDataProducts[_id].boundedError,IoTDataProducts[_id].owner);
+    function getContentProductInfo(uint _id) public view returns (uint id, string memory, uint[] memory , uint[] memory, address){
+        return (ContentProducts[_id].id,ContentProducts[_id].description,ContentProducts[_id].price,ContentProducts[_id].boundedError,ContentProducts[_id].owner);
     }
     
 }

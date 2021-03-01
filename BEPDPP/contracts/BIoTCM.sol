@@ -27,9 +27,9 @@ contract BIoTCM {
     
     event ContentProductCreated(uint id, string  description, uint[] price, uint[] boundedError ,address owner);
     event ConsumerRegisterProductEvent(address Consumer , string message);
-    event ContentProductPurchased(uint id, string description, uint price , uint boundedError , address payable owner, address Consumer,string ConsumerPubliceKey);
-    event ContentProductSend(uint id,address owner,address Consumer);
-    event ContentProductQuery(string fileHash);
+    event ProductContentPurchased(uint id, string description, uint price , uint boundedError , address payable owner, address Consumer,string ConsumerPubliceKey);
+    event ProductContentSend(uint id,address owner,address Consumer);
+    event ProductContentQuery(string fileHash);
     
     function dataOwnerCreateContentProduct(string  memory _description, uint[] memory _price, uint[] memory _boundedError) public{
         // Increment ContentProduct Count
@@ -51,7 +51,7 @@ contract BIoTCM {
         return msg.sender;
     }
     
-    function purchaseContentProduct(uint _id) public payable{
+    function purchaseProductContent(uint _id) public payable{
         ContentProduct storage _product = ContentProducts[_id];
         uint _boundedError;
         for (uint it =0 ; it < _product.price.length; it++ ){
@@ -63,29 +63,29 @@ contract BIoTCM {
         if (_product.accessList[msg.sender] == true){
             address payable _owner = _product.owner;
             payable(_owner).transfer(msg.value);
-            emit ContentProductPurchased(_id,_product.description,msg.value,_boundedError,_owner,msg.sender,ConsumerMap[msg.sender].publicKey);
+            emit ProductContentPurchased(_id,_product.description,msg.value,_boundedError,_owner,msg.sender,ConsumerMap[msg.sender].publicKey);
         }
         else{
             revert();
         }
     }
 
-    function sendContentProduct(uint _id, string memory _fileHash, address _Consumer) public {
+    function sendProductContent(uint _id, string memory _fileHash, address _Consumer) public {
         ContentProducts[_id].ContentProductHash[_Consumer] = _fileHash;
-        emit ContentProductSend(_id,msg.sender,_Consumer);
+        emit ProductContentSend(_id,msg.sender,_Consumer);
     }
     
-    function queryContentProduct(uint _id) public {
+    function queryProductContent(uint _id) public {
         ContentProduct storage _product = ContentProducts[_id];
         if (_product.accessList[msg.sender] == true) {
-            emit ContentProductQuery(_product.ContentProductHash[msg.sender]);
+            emit ProductContentQuery(_product.ContentProductHash[msg.sender]);
         }
         else{
             revert();
         }
     }
     
-    function getContentProductInfo(uint _id) public view returns (uint id, string memory, uint[] memory , uint[] memory, address){
+    function getProductInfo(uint _id) public view returns (uint id, string memory, uint[] memory , uint[] memory, address){
         return (ContentProducts[_id].id,ContentProducts[_id].description,ContentProducts[_id].price,ContentProducts[_id].boundedError,ContentProducts[_id].owner);
     }
     

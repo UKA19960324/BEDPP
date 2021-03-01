@@ -1,6 +1,6 @@
 pragma solidity >=0.4.22 <0.8.0;
 
-contract BEDMoB {
+contract BIoTCM {
     
     struct ContentProduct{
         uint id;
@@ -12,23 +12,23 @@ contract BEDMoB {
         address payable owner;
     }
     
-    struct Customer {
+    struct Consumer {
         string publicKey;
     }
     
     address public contractCreator;
     uint public ContentProductCount = 0;
     mapping(uint => ContentProduct) private ContentProducts;
-    mapping(address => Customer) private CustomerMap;
+    mapping(address => Consumer) private ConsumerMap;
     
      constructor () public {
         contractCreator = msg.sender;
     }
     
     event ContentProductCreated(uint id, string  description, uint[] price, uint[] boundedError ,address owner);
-    event CustomerRegisterProductEvent(address Customer , string message);
-    event ContentProductPurchased(uint id, string description, uint price , uint boundedError , address payable owner, address Customer,string CustomerPubliceKey);
-    event ContentProductSend(uint id,address owner,address Customer);
+    event ConsumerRegisterProductEvent(address Consumer , string message);
+    event ContentProductPurchased(uint id, string description, uint price , uint boundedError , address payable owner, address Consumer,string ConsumerPubliceKey);
+    event ContentProductSend(uint id,address owner,address Consumer);
     event ContentProductQuery(string fileHash);
     
     function dataOwnerCreateContentProduct(string  memory _description, uint[] memory _price, uint[] memory _boundedError) public{
@@ -43,11 +43,11 @@ contract BEDMoB {
         emit ContentProductCreated(ContentProductCount,_description,_price,_boundedError,msg.sender);
     }
     
-    function customerRegisterProduct (string memory _publicKey) public returns (address) {
-        // check if customer is already registered
-        require(bytes(CustomerMap[msg.sender].publicKey).length == 0,"Customer Already Registered");
-        CustomerMap[msg.sender].publicKey = _publicKey;
-        emit CustomerRegisterProductEvent(msg.sender,"Sucessfully Registered");
+    function consumerRegisterProduct (string memory _publicKey) public returns (address) {
+        // check if consumer is already registered
+        require(bytes(ConsumerMap[msg.sender].publicKey).length == 0,"Consumer Already Registered");
+        ConsumerMap[msg.sender].publicKey = _publicKey;
+        emit ConsumerRegisterProductEvent(msg.sender,"Sucessfully Registered");
         return msg.sender;
     }
     
@@ -63,16 +63,16 @@ contract BEDMoB {
         if (_product.accessList[msg.sender] == true){
             address payable _owner = _product.owner;
             payable(_owner).transfer(msg.value);
-            emit ContentProductPurchased(_id,_product.description,msg.value,_boundedError,_owner,msg.sender,CustomerMap[msg.sender].publicKey);
+            emit ContentProductPurchased(_id,_product.description,msg.value,_boundedError,_owner,msg.sender,ConsumerMap[msg.sender].publicKey);
         }
         else{
             revert();
         }
     }
 
-    function sendContentProduct(uint _id, string memory _fileHash, address _Customer) public {
-        ContentProducts[_id].ContentProductHash[_Customer] = _fileHash;
-        emit ContentProductSend(_id,msg.sender,_Customer);
+    function sendContentProduct(uint _id, string memory _fileHash, address _Consumer) public {
+        ContentProducts[_id].ContentProductHash[_Consumer] = _fileHash;
+        emit ContentProductSend(_id,msg.sender,_Consumer);
     }
     
     function queryContentProduct(uint _id) public {

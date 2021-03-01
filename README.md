@@ -1,4 +1,4 @@
-# BEDPP
+# BEPDPP
 * Developer DAPP
 ![image]( https://drive.google.com/uc?id=1XOSl8Mp9QZPxJJ_xNYosbrwnU6jE8prK "Developer DAPP")
 * Data Owner DAPP
